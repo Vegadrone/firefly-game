@@ -10,10 +10,12 @@ export class Game extends Scene
     //lightsArray = [];
     lightsGroup = null;
     cursors = null;
-    spotlight = null;
+    lightVFX = null;
+    playerLightVFX = null;
+    playerLightVFXIntensity = 3;
 
     //Booleans
-    isPlayerCharged = false;
+    isPlayerLighted = false;
 
 
     constructor ()
@@ -38,6 +40,7 @@ export class Game extends Scene
             let y = Phaser.Math.Between(100, 400);
             this.light = new Light({scene: this});
             this.light.setPosition(x, y);
+            this.lightVFX = this.lights.addLight(x, y, 200).setIntensity(5);
             this.light.body.setSize(50, 50);
             this.lightsGroup.add(this.light);
         }
@@ -66,7 +69,7 @@ export class Game extends Scene
         //LightsVFX
         this.lights.enable();
         this.lights.setAmbientColor(0x808080);
-        this.spotlight = this.lights.addLight(this.player.x, this.player.y, 200).setIntensity(3);
+        this.playerLightVFX = this.lights.addLight(this.player.x, this.player.y, 200).setIntensity(this.playerLightVFXIntensity);
 
     }
 
@@ -76,15 +79,16 @@ export class Game extends Scene
 
         //Check for collision
         this.physics.add.overlap(this.player, this.lightsGroup, this.playerCharging, null, this);
+        
 
         //move the light
-        this.spotlight.x = this.player.x;
-        this.spotlight.y = this.player.y;
+        this.playerLightVFX.x = this.player.x;
+        this.playerLightVFX.y = this.player.y;
     }
 
 
     playerCharging(player, light) {
-        this.isPlayerCharged = true;
-        console.log('collide!' + ' ' + this.isPlayerCharged);
+        this.isPlayerLighted = true;
+        console.log('collide!' + ' ' + this.isPlayerLighted);
     }
 }
