@@ -15,7 +15,7 @@ export class Player extends Physics.Arcade.Sprite {
 
        // Access cursors from the scene
        const cursors = this.scene.cursors;
-       const speed = 500;
+       const speed = 800;
 
        if (cursors.left.isDown) {
            this.setVelocityX(-speed);
