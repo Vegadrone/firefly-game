@@ -4,25 +4,29 @@ import { Light } from '../gameobjects/Light';
 
 export class Game extends Scene
 {
-    //Obbjects delcarations
+    //Objects delcarations
     player = null;
     light = null;
-    //lightsArray = [];
     lightsGroup = null;
     cursors = null;
     lightVFX = null;
     playerLightVFX = null;
-    playerLightVFXIntensity = 3;
+
+    //Numbers
+    playerLightVFXIntensity = 0;
+    lightVFXIntensity = 3;
 
     //Booleans
     isPlayerLighted = false;
 
-
+    //Timer event
+    playerLightResetTimer = null;
+    playerLightDuration = 3000;
+   
     constructor ()
     {
         super('Game');
     }
-
     
     create ()
     {
@@ -35,60 +39,74 @@ export class Game extends Scene
 
         //Create Light
         this.lightsGroup =  this.physics.add.group();
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 5; i++) {
             let x = Phaser.Math.Between(100, 6000); 
             let y = Phaser.Math.Between(100, 400);
             this.light = new Light({scene: this});
             this.light.setPosition(x, y);
-            this.lightVFX = this.lights.addLight(x, y, 200).setIntensity(5);
+            this.lightVFX = this.lights.addLight(x, y, 200).setIntensity(3);
             this.light.body.setSize(50, 50);
-            this.lightsGroup.add(this.light);
+            this.lightsGroup.add(this.light)
         }
- 
+
         //World collider and set player collide
         this.player.setCollideWorldBounds(true);
-      
+        
+        //World dimension
         this.physics.world.setBounds(0, 0, 1920 * 4, 1080 * 4);
         
         //Follow Camera
         this.cameras.main.setBounds(0, 0, 1920 * 4 , 1080 * 4);
         this.cameras.main.startFollow(this.player, true, 0.05, 0.05);
-        this.cameras.main.setBackgroundColor(0x0000ff);
-
-        //Game Background
+        
+        //Game Background positioning
         const background = this.add.image(0, 0, 'background').setOrigin(0);
 
+        //Game Background light
         background.setPipeline('Light2D');
 
+        //LightsVFX
+        this.lights.enable();
+        this.lights.setAmbientColor(0x808080);
+        this.playerLightVFX = this.lights.addLight(this.player.x, this.player.y, 200).setIntensity(0);
+        
+        //Change to Game Over scene
         this.input.once('pointerdown', () => {
 
             this.scene.start('GameOver');
 
         });
 
-        //LightsVFX
-        this.lights.enable();
-        this.lights.setAmbientColor(0x808080);
-        this.playerLightVFX = this.lights.addLight(this.player.x, this.player.y, 200).setIntensity(this.playerLightVFXIntensity);
-
+        //Timer
+        this.playerLightResetTimer = this.time.addEvent({
+            delay: this.playerLightDuration,
+            callback: this.resetPlayerLight,
+            callbackScope: this, 
+            loop: false 
+        });
     }
-
+    
     update() {
         //Player Movement
         this.player.move();
 
         //Check for collision
-        this.physics.add.overlap(this.player, this.lightsGroup, this.playerCharging, null, this);
+        if (!this.isPlayerLighted) {
+            this.physics.add.overlap(this.player, this.lightsGroup, this.playerLightOn, null, this);
+            console.log('Lucien non è acceso, la collisione è possibile! isPlayerLighted ore è:' + this.isPlayerLighted);
+        }
         
-
-        //move the light
+        //Move the light behind Lucien
         this.playerLightVFX.x = this.player.x;
         this.playerLightVFX.y = this.player.y;
     }
 
 
-    playerCharging(player, light) {
+    //Funchtion that starts when Lucien collide with a light
+    playerLightOn(player, light) {    
+        if (this.isPlayerLighted) return;
+        this.playerLightVFX = this.lights.addLight(this.player.x, this.player.y, 200).setIntensity(3);
         this.isPlayerLighted = true;
-        console.log('collide!' + ' ' + this.isPlayerLighted);
+        console.log('Lucien ora è acceso! isPlayerLighted ora è: '+ this.isPlayerLighted);
     }
 }
