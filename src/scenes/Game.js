@@ -76,14 +76,6 @@ export class Game extends Scene
             this.scene.start('GameOver');
 
         });
-
-        //Timer
-        this.playerLightResetTimer = this.time.addEvent({
-            delay: this.playerLightDuration,
-            callback: this.resetPlayerLight,
-            callbackScope: this,
-            loop: false,
-        });
     }
     
     update() {
@@ -97,7 +89,13 @@ export class Game extends Scene
         }
 
         if (this.isPlayerLighted) {
-            this.resetPlayerLight();
+            //Timer
+            this.playerLightResetTimer = this.time.addEvent({
+                delay: this.playerLightDuration,
+                callback: this.resetPlayerLight,
+                callbackScope: this,
+                loop: false,
+            });
         }
         
         //Move the light behind Lucien
