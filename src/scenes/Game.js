@@ -21,7 +21,7 @@ export class Game extends Scene
 
     //Timer event
     playerLightResetTimer = null;
-    playerLightDuration = 3000;
+    playerLightDuration = 5000;
    
     constructor ()
     {
@@ -81,8 +81,8 @@ export class Game extends Scene
         this.playerLightResetTimer = this.time.addEvent({
             delay: this.playerLightDuration,
             callback: this.resetPlayerLight,
-            callbackScope: this, 
-            loop: false 
+            callbackScope: this,
+            loop: false,
         });
     }
     
@@ -95,18 +95,30 @@ export class Game extends Scene
             this.physics.add.overlap(this.player, this.lightsGroup, this.playerLightOn, null, this);
             console.log('Lucien non è acceso, la collisione è possibile! isPlayerLighted ore è:' + this.isPlayerLighted);
         }
+
+        if (this.isPlayerLighted) {
+            this.resetPlayerLight();
+        }
         
         //Move the light behind Lucien
         this.playerLightVFX.x = this.player.x;
         this.playerLightVFX.y = this.player.y;
     }
 
-
-    //Funchtion that starts when Lucien collide with a light
+    //Function that starts when Lucien collide with a light
     playerLightOn(player, light) {    
         if (this.isPlayerLighted) return;
         this.playerLightVFX = this.lights.addLight(this.player.x, this.player.y, 200).setIntensity(3);
         this.isPlayerLighted = true;
         console.log('Lucien ora è acceso! isPlayerLighted ora è: '+ this.isPlayerLighted);
+    }
+
+    resetPlayerLight() {
+       this.isPlayerLighted = false; 
+       this.playerLightVFX.setIntensity(0);
+       console.log('Lucien è di nuovo spento dopo: ' + (this.playerLightDuration / 1000) + ' secondi.');
+
+       // Reset the timer for the next light activation
+       this.playerLightResetTimer.reset({delay: this.playerLightDuration});
     }
 }
