@@ -29,7 +29,7 @@ export class Preloader extends Scene
 
     preload ()
     {
-        //  Load the assets for the game - Replace with your own assets
+        //  Load the assets for the game 
         this.load.setPath('assets');
 
         this.load.image('logo', 'logo.png');
@@ -38,7 +38,10 @@ export class Preloader extends Scene
 
         this.load.image('light', 'light.png');
 
-        this.load.image('firefly', 'firefly.png')
+        this.load.image('firefly', 'firefly.png');
+
+        //Audio
+        this.load.audio('cafe', '/audio/french-jazz-music-142911.mp3');
 
     }
 

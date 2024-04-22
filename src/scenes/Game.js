@@ -13,13 +13,17 @@ export class Game extends Scene
     cursors = null;
     lightVFX = null;
     playerLightVFX = null;
+    fireflyLightVFX = null;
 
     //Booleans
     isPlayerLighted = false;
 
     //Timer event
     playerLightResetTimer = null;
-    playerLightDuration = 5000;
+    playerLightDuration = 10000;
+
+    //Audio
+    cafeMusic = null;
    
     constructor ()
     {
@@ -28,6 +32,13 @@ export class Game extends Scene
     
     create ()
     {
+        //Audio play
+        this.cafeMusic = this.sound.add('cafe');
+        this.cafeMusic.play({
+            loop: true,
+            volume: 0.1
+        })
+
         //Set the cursor
         this.cursors = this.input.keyboard.createCursorKeys(); 
         
@@ -49,10 +60,11 @@ export class Game extends Scene
 
         //Create firefly
         this.firefly = new Firefly({scene: this})
-        this.firefly.setScale(2, 2);
+        //this.firefly.setScale(2, 2);
 
-        //World collider and set player collide
+        //World collider and set player/firefly collide
         this.player.setCollideWorldBounds(true);
+        this.firefly.setCollideWorldBounds(true);
         
         //World dimension
         this.physics.world.setBounds(0, 0, 1920 * 4, 1080 * 4);
@@ -71,6 +83,7 @@ export class Game extends Scene
         this.lights.enable();
         this.lights.setAmbientColor(0x808080);
         this.playerLightVFX = this.lights.addLight(this.player.x, this.player.y, 200).setIntensity(0);
+        this.fireflyLightVFX = this.lights.addLight(this.firefly.x, this.firefly.y, 100).setIntensity(3);
         this.lightVFX.setIntensity(3);
         
         //Change to Game Over scene
@@ -91,12 +104,14 @@ export class Game extends Scene
             console.log('Lucien is not lighted, collision is possible! isPlayerLighted is:' + this.isPlayerLighted);
         }
        
-        //Move the light behind Lucien
+        //Move the light behind Lucien and fireflies
         this.playerLightVFX.x = this.player.x;
         this.playerLightVFX.y = this.player.y;
+        this.fireflyLightVFX.x = this.firefly.x;
+        this.fireflyLightVFX.y = this.firefly.y;
 
         //Firefly follow
-        const range = 300; 
+        const range = 330; 
         const distance = Phaser.Math.Distance.Between(this.firefly.x, this.firefly.y, this.player.x, this.player.y);
         if (this.isPlayerLighted && distance <= range) {
             this.firefly.x += (this.player.x - 100 - this.firefly.x) * 0.1; //follow speed 
