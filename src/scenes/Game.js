@@ -87,17 +87,7 @@ export class Game extends Scene
             this.physics.add.overlap(this.player, this.lightsGroup, this.playerLightOn, null, this);
             console.log('Lucien non è acceso, la collisione è possibile! isPlayerLighted ore è:' + this.isPlayerLighted);
         }
-
-        if (this.isPlayerLighted) {
-            //Timer
-            this.playerLightResetTimer = this.time.addEvent({
-                delay: this.playerLightDuration,
-                callback: this.resetPlayerLight,
-                callbackScope: this,
-                loop: false,
-            });
-        }
-        
+       
         //Move the light behind Lucien
         this.playerLightVFX.x = this.player.x;
         this.playerLightVFX.y = this.player.y;
@@ -109,6 +99,14 @@ export class Game extends Scene
         this.playerLightVFX = this.lights.addLight(this.player.x, this.player.y, 200).setIntensity(3);
         this.isPlayerLighted = true;
         console.log('Lucien ora è acceso! isPlayerLighted ora è: '+ this.isPlayerLighted);
+
+         //Timer
+         this.playerLightResetTimer = this.time.addEvent({
+            delay: this.playerLightDuration,
+            callback: this.resetPlayerLight,
+            callbackScope: this,
+            loop: false,
+        })
     }
 
     resetPlayerLight() {
