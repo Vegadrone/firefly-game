@@ -10,6 +10,7 @@ export class Game extends Scene
     light = null;
     lightsGroup = null;
     firefly = null;
+    firefliesGroup = null;
     cursors = null;
     lightVFX = null;
     playerLightVFX = null;
@@ -17,6 +18,7 @@ export class Game extends Scene
 
     //Booleans
     isPlayerLighted = false;
+    isAudioInPlay = false;
 
     //Timer event
     playerLightResetTimer = null;
@@ -24,6 +26,7 @@ export class Game extends Scene
 
     //Audio
     cafeMusic = null;
+    chargeSFX = null;
    
     constructor ()
     {
@@ -33,11 +36,16 @@ export class Game extends Scene
     create ()
     {
         //Audio play
-        this.cafeMusic = this.sound.add('cafe');
-        this.cafeMusic.play({
-            loop: true,
-            volume: 0.1
-        })
+        if (!this.isAudioInPlay) {
+            this.cafeMusic = this.sound.add('cafe');
+            this.cafeMusic.play({
+                loop: true,
+                volume: 0.1,
+            })
+            this.isAudioInPlay = true;
+        }
+
+        this.chargeSFX = this.sound.add('lightup');
 
         //Set the cursor
         this.cursors = this.input.keyboard.createCursorKeys(); 
@@ -55,11 +63,19 @@ export class Game extends Scene
             this.light.setPosition(x, y);
             this.lightVFX = this.lights.addLight(x, y, 200).setIntensity(0);
             this.light.body.setSize(50, 50);
-            this.lightsGroup.add(this.light)
+            this.lightsGroup.add(this.light);
         }
 
         //Create firefly
-        this.firefly = new Firefly({scene: this})
+        this.firefliesGroup = this.physics.add.group();
+        for (let i = 0; i < 20; i++) {
+            let x = Phaser.Math.Between(100, 6000);
+            let y = Phaser.Math.Between(100, 4000);
+            this.firefly = new Firefly({scene: this})
+            this.fireflyLightVFX = this.lights.addLight(this.firefly.x, this.firefly.y, 100).setIntensity(3);
+            this.light.setPosition(x, y);
+            this.lightsGroup.add(this.firefly);
+        }
         //this.firefly.setScale(2, 2);
 
         //World collider and set player/firefly collide
@@ -83,7 +99,7 @@ export class Game extends Scene
         this.lights.enable();
         this.lights.setAmbientColor(0x808080);
         this.playerLightVFX = this.lights.addLight(this.player.x, this.player.y, 200).setIntensity(0);
-        this.fireflyLightVFX = this.lights.addLight(this.firefly.x, this.firefly.y, 100).setIntensity(3);
+        
         this.lightVFX.setIntensity(3);
         
         //Change to Game Over scene
@@ -125,6 +141,13 @@ export class Game extends Scene
         this.playerLightVFX.setIntensity(3);
         this.isPlayerLighted = true;
         console.log('Lucien is lighted! isPlayerLighted is: '+ this.isPlayerLighted);
+
+        //SFX
+        this.chargeSFX.play({
+            loop:false,
+            volume:0.5,
+
+        });
 
          //Timer
          this.playerLightResetTimer = this.time.addEvent({
