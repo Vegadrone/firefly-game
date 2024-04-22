@@ -1,6 +1,7 @@
 import { Scene } from 'phaser';
 import { Player } from '../gameobjects/Player';
 import { Light } from '../gameobjects/Light';
+import { Firefly } from '../gameobjects/Firefly';
 
 export class Game extends Scene
 {
@@ -8,13 +9,10 @@ export class Game extends Scene
     player = null;
     light = null;
     lightsGroup = null;
+    firefly = null;
     cursors = null;
     lightVFX = null;
     playerLightVFX = null;
-
-    //Numbers
-    playerLightVFXIntensity = 0;
-    lightVFXIntensity = 3;
 
     //Booleans
     isPlayerLighted = false;
@@ -44,10 +42,14 @@ export class Game extends Scene
             let y = Phaser.Math.Between(100, 400);
             this.light = new Light({scene: this});
             this.light.setPosition(x, y);
-            this.lightVFX = this.lights.addLight(x, y, 200).setIntensity(3);
+            this.lightVFX = this.lights.addLight(x, y, 200).setIntensity(0);
             this.light.body.setSize(50, 50);
             this.lightsGroup.add(this.light)
         }
+
+        //Create firefly
+        this.firefly = new Firefly({scene: this})
+        this.firefly.setScale(2, 2);
 
         //World collider and set player collide
         this.player.setCollideWorldBounds(true);
@@ -69,6 +71,7 @@ export class Game extends Scene
         this.lights.enable();
         this.lights.setAmbientColor(0x808080);
         this.playerLightVFX = this.lights.addLight(this.player.x, this.player.y, 200).setIntensity(0);
+        this.lightVFX.setIntensity(3);
         
         //Change to Game Over scene
         this.input.once('pointerdown', () => {
@@ -85,20 +88,28 @@ export class Game extends Scene
         //Check for collision
         if (!this.isPlayerLighted) {
             this.physics.add.overlap(this.player, this.lightsGroup, this.playerLightOn, null, this);
-            console.log('Lucien non è acceso, la collisione è possibile! isPlayerLighted ore è:' + this.isPlayerLighted);
+            console.log('Lucien is not lighted, collision is possible! isPlayerLighted is:' + this.isPlayerLighted);
         }
        
         //Move the light behind Lucien
         this.playerLightVFX.x = this.player.x;
         this.playerLightVFX.y = this.player.y;
+
+        //Firefly follow
+        const range = 300; 
+        const distance = Phaser.Math.Distance.Between(this.firefly.x, this.firefly.y, this.player.x, this.player.y);
+        if (this.isPlayerLighted && distance <= range) {
+            this.firefly.x += (this.player.x - 100 - this.firefly.x) * 0.1; //follow speed 
+            this.firefly.y += (this.player.y - 100 - this.firefly.y) * 0.1; //follow speed 
+       }
     }
 
     //Function that starts when Lucien collide with a light
     playerLightOn(player, light) {    
         if (this.isPlayerLighted) return;
-        this.playerLightVFX = this.lights.addLight(this.player.x, this.player.y, 200).setIntensity(3);
+        this.playerLightVFX.setIntensity(3);
         this.isPlayerLighted = true;
-        console.log('Lucien ora è acceso! isPlayerLighted ora è: '+ this.isPlayerLighted);
+        console.log('Lucien is lighted! isPlayerLighted is: '+ this.isPlayerLighted);
 
          //Timer
          this.playerLightResetTimer = this.time.addEvent({
@@ -112,7 +123,8 @@ export class Game extends Scene
     resetPlayerLight() {
        this.isPlayerLighted = false; 
        this.playerLightVFX.setIntensity(0);
-       console.log('Lucien è di nuovo spento dopo: ' + (this.playerLightDuration / 1000) + ' secondi.');
+      
+       console.log('Lucien is "not lighted" after: ' + (this.playerLightDuration / 1000) + ' seconds. He can light up again!');
 
        // Reset the timer for the next light activation
        this.playerLightResetTimer.reset({delay: this.playerLightDuration});
