@@ -44,8 +44,8 @@ export class Preloader extends Scene
 
         //Audio
         this.load.audio('cafe', '/audio/Parisian Dream.mp3');
-        this.load.audio('lightup', '/audio/lucien_charge.mp3')
-
+        this.load.audio('lightup', '/audio/lucien_charge.mp3');
+        this.load.audio('shutdown', '/audio/spento.mp3');
     }
 
     create ()

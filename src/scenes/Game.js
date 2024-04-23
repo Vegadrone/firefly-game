@@ -8,7 +8,10 @@ export class Game extends Scene
 {
     //Objects delcarations
     player = null;
-    jar = null;
+    jar1 = null;
+    jar2 = null;
+    jar3 = null;
+    jar4 = null;
     light = null;
     lightsGroup = null;
     firefly = null;
@@ -35,6 +38,7 @@ export class Game extends Scene
     //Audio
     cafeMusic = null;
     chargeSFX = null;
+    shutdownSFX = null;
    
     constructor ()
     {
@@ -54,16 +58,23 @@ export class Game extends Scene
         }
 
         this.chargeSFX = this.sound.add('lightup');
+        this.shutdownSFX = this.sound.add('shutdown');
 
         //Set the cursor
         this.cursors = this.input.keyboard.createCursorKeys(); 
         
         //Create the player
         this.player = new Player({scene: this});
-        this.player.body.setSize(80, 80);
-        
+
         //Crate the jar
-        this.jar = new Jar({scene: this});
+        this.jar1 = new Jar({scene: this});
+        this.jar1.setPosition(1017.91, 2845.78);
+        this.jar2 = new Jar({scene: this});
+        this.jar2.setPosition(4737.53,2906.91);
+        this.jar3 = new Jar({scene: this});
+        this.jar3.setPosition(6658.96,2430.16);
+        this.jar4 = new Jar({scene: this});
+        this.jar4.setPosition(2644.95, 2197.10);
 
         //Create Light
         this.lightsGroup =  this.physics.add.group();
@@ -83,18 +94,15 @@ export class Game extends Scene
             let x = Phaser.Math.Between(100, 6000);
             let y = Phaser.Math.Between(100, 4000);
             this.firefly = new Firefly({scene: this})
-            this.fireflyLightVFX = this.lights.addLight(this.firefly.x, this.firefly.y, 100).setIntensity(3);
-            this.light.setPosition(x, y);
+            this.firefly.setPosition(x, y);
+            this.fireflyLightVFX = this.lights.addLight(this.firefly.x, this.firefly.y, 100).setIntensity(5);
             this.lightsGroup.add(this.firefly);
         }
         //this.firefly.setScale(2, 2);
-
-        //World collider and set player/firefly collide
-        this.player.setCollideWorldBounds(true);
-        this.firefly.setCollideWorldBounds(true);
         
         //World dimension
         this.physics.world.setBounds(0, 0, 1920 * 4, 1080 * 4);
+           
         
         //Follow Camera
         this.cameras.main.setBounds(0, 0, 1920 * 4 , 1080 * 4);
@@ -119,10 +127,6 @@ export class Game extends Scene
         //     this.scene.start('GameOver');
 
         // });
-
-        //Prove
-        this.add.image(200, 2000, 'tavolino');
-        this.add.image(4000, 2000, 'lampione');
     
         //Per piazzare luci e barattoli
         this.input.addPointer();
@@ -146,7 +150,7 @@ export class Game extends Scene
         //Player Movement
         this.player.move();
 
-        //Check for collision
+        //Check for collision, use this condition to stop collition chek accumulateing
         if (!this.isPlayerLighted && (this.player.body.velocity.x !== 0 || this.player.body.velocity.y !== 0)) {
             this.physics.add.overlap(this.player, this.lightsGroup, this.playerLightOn, null, this);
             console.log('Lucien is not lighted, collision is possible! isPlayerLighted is:' + this.isPlayerLighted);
@@ -178,7 +182,6 @@ export class Game extends Scene
         this.chargeSFX.play({
             loop:false,
             volume:0.5,
-
         });
 
          //Timer
@@ -193,6 +196,13 @@ export class Game extends Scene
     resetPlayerLight() {
        this.isPlayerLighted = false; 
        this.playerLightVFX.setIntensity(0);
+
+       //SFX
+       this.shutdownSFX.play({
+           loop: false,
+           volume: 0.5,
+
+       });
       
        console.log('Lucien is "not lighted" after: ' + (this.playerLightDuration / 1000) + ' seconds. He can light up again!');
 

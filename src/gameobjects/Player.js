@@ -7,6 +7,8 @@ export class Player extends Physics.Arcade.Sprite {
         this.scene = scene;
         this.scene.add.existing(this);
         this.scene.physics.add.existing(this);
+        this.body.setSize(80,80);
+        this.setCollideWorldBounds(true);
     }
 
    move() {

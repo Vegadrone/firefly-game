@@ -6,5 +6,7 @@ export class Firefly extends Physics.Arcade.Sprite {
         this.scene = scene;
         this.scene.add.existing(this);
         this.scene.physics.add.existing(this);
+        this.setCollideWorldBounds(true);
+        this.setScale(2,2);
     }
 }
