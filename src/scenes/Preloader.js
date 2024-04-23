@@ -40,6 +40,7 @@ export class Preloader extends Scene
         this.load.image('tavolino', 'tavolino.png');
         this.load.image('sedia', 'sedia.png');
         this.load.image('lampione', 'lampione.png');
+        this.load.image('jar', 'jar.png');
 
         //Audio
         this.load.audio('cafe', '/audio/Parisian Dream.mp3');

@@ -2,11 +2,13 @@ import { Scene } from 'phaser';
 import { Player } from '../gameobjects/Player';
 import { Light } from '../gameobjects/Light';
 import { Firefly } from '../gameobjects/Firefly';
+import { Jar } from '../gameobjects/Jar';
 
 export class Game extends Scene
 {
     //Objects delcarations
     player = null;
+    jar = null;
     light = null;
     lightsGroup = null;
     firefly = null;
@@ -16,9 +18,15 @@ export class Game extends Scene
     playerLightVFX = null;
     fireflyLightVFX = null;
 
+    //Counters
+    firefliesInJar = 0;
+    jarLighted = 0;
+    winCondition = 4;
+
     //Booleans
     isPlayerLighted = false;
     isAudioInPlay = false;
+    isJarLighted
 
     //Timer event
     playerLightResetTimer = null;
@@ -52,7 +60,10 @@ export class Game extends Scene
         
         //Create the player
         this.player = new Player({scene: this});
-        this.player.body.setSize(80, 80);       
+        this.player.body.setSize(80, 80);
+        
+        //Crate the jar
+        this.jar = new Jar({scene: this});
 
         //Create Light
         this.lightsGroup =  this.physics.add.group();
@@ -116,16 +127,16 @@ export class Game extends Scene
         //Per piazzare luci e barattoli
         this.input.addPointer();
 
-        var sedia = this.add.image(2000, 2000, 'sedia');
+        var jarDrag = this.add.image(2000, 2000, 'jar');
 
-        sedia.setInteractive();
+        jarDrag.setInteractive();
 
-        this.input.setDraggable(sedia);
+        this.input.setDraggable(jarDrag);
 
-        sedia.on('drag', function (p, x, y) {
+        jarDrag.on('drag', function (p, x, y) {
 
-            sedia.x = x;
-            sedia.y = y;
+            jarDrag.x = x;
+            jarDrag.y = y;
             console.log('La posizione di x è:' + x, '\nLa posizione di y è:' + y);
 
         });
@@ -136,7 +147,7 @@ export class Game extends Scene
         this.player.move();
 
         //Check for collision
-        if (!this.isPlayerLighted) {
+        if (!this.isPlayerLighted && (this.player.body.velocity.x !== 0 || this.player.body.velocity.y !== 0)) {
             this.physics.add.overlap(this.player, this.lightsGroup, this.playerLightOn, null, this);
             console.log('Lucien is not lighted, collision is possible! isPlayerLighted is:' + this.isPlayerLighted);
         }
@@ -158,7 +169,7 @@ export class Game extends Scene
 
     //Function that starts when Lucien collide with a light
     playerLightOn(player, light) {    
-        if (this.isPlayerLighted) return;
+        if (this.isPlayerLighted || !(light instanceof Light)) return;
         this.playerLightVFX.setIntensity(3);
         this.isPlayerLighted = true;
         console.log('Lucien is lighted! isPlayerLighted is: '+ this.isPlayerLighted);
