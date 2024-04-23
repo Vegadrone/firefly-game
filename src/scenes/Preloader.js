@@ -35,13 +35,14 @@ export class Preloader extends Scene
         this.load.image('logo', 'logo.png');
 
         this.load.image('player', 'lucien.png');
-
         this.load.image('light', 'light.png');
-
         this.load.image('firefly', 'firefly.png');
+        this.load.image('tavolino', 'tavolino.png');
+        this.load.image('sedia', 'sedia.png');
+        this.load.image('lampione', 'lampione.png');
 
         //Audio
-        this.load.audio('cafe', '/audio/french-jazz-music-142911.mp3');
+        this.load.audio('cafe', '/audio/Parisian Dream.mp3');
         this.load.audio('lightup', '/audio/lucien_charge.mp3')
 
     }

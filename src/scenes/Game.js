@@ -103,9 +103,30 @@ export class Game extends Scene
         this.lightVFX.setIntensity(3);
         
         //Change to Game Over scene
-        this.input.once('pointerdown', () => {
+        // this.input.once('pointerdown', () => {
 
-            this.scene.start('GameOver');
+        //     this.scene.start('GameOver');
+
+        // });
+
+        //Prove
+        this.add.image(200, 2000, 'tavolino');
+        this.add.image(4000, 2000, 'lampione');
+    
+        //Per piazzare luci e barattoli
+        this.input.addPointer();
+
+        var sedia = this.add.image(2000, 2000, 'sedia');
+
+        sedia.setInteractive();
+
+        this.input.setDraggable(sedia);
+
+        sedia.on('drag', function (p, x, y) {
+
+            sedia.x = x;
+            sedia.y = y;
+            console.log('La posizione di x è:' + x, '\nLa posizione di y è:' + y);
 
         });
     }
