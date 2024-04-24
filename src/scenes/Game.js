@@ -12,6 +12,8 @@ export class Game extends Scene
     jar2 = null;
     jar3 = null;
     jar4 = null;
+    jar = null;
+    jars = [];
     light = null;
     lightsGroup = null;
     firefly = null;
@@ -67,14 +69,15 @@ export class Game extends Scene
         this.player = new Player({scene: this});
 
         //Crate the jar
-        this.jar1 = new Jar({scene: this});
-        this.jar1.setPosition(1017.91, 2845.78);
-        this.jar2 = new Jar({scene: this});
-        this.jar2.setPosition(4737.53,2906.91);
-        this.jar3 = new Jar({scene: this});
-        this.jar3.setPosition(6658.96,2430.16);
-        this.jar4 = new Jar({scene: this});
-        this.jar4.setPosition(2644.95, 2197.10);
+      
+        // this.jar1 = new Jar({scene: this});
+        // this.jar1.setPosition(1017.91, 2845.78);
+        // this.jar2 = new Jar({scene: this});
+        // this.jar2.setPosition(4737.53,2906.91);
+        // this.jar3 = new Jar({scene: this});
+        // this.jar3.setPosition(6658.96,2430.16);
+        // this.jar4 = new Jar({scene: this});
+        // this.jar4.setPosition(2644.95, 2197.10);
 
         //Create Light
         this.lightsGroup =  this.physics.add.group();
@@ -95,15 +98,17 @@ export class Game extends Scene
             let y = Phaser.Math.Between(100, 4000);
             this.firefly = new Firefly({scene: this})
             this.firefly.setPosition(x, y);
-            this.fireflyLightVFX = this.lights.addLight(this.firefly.x, this.firefly.y, 100).setIntensity(5);
-            this.lightsGroup.add(this.firefly);
+            this.firefliesGroup.add(this.firefly);
         }
-        //this.firefly.setScale(2, 2);
+
+         this.firefliesGroup.getChildren().forEach(firefly => {
+             firefly.light = this.lights.addLight(firefly.x, firefly.y, 100).setIntensity(10);
+         });
         
         //World dimension
+        this.firefly.setCollideWorldBounds(true);
         this.physics.world.setBounds(0, 0, 1920 * 4, 1080 * 4);
            
-        
         //Follow Camera
         this.cameras.main.setBounds(0, 0, 1920 * 4 , 1080 * 4);
         this.cameras.main.startFollow(this.player, true, 0.05, 0.05);
@@ -159,22 +164,29 @@ export class Game extends Scene
         //Move the light behind Lucien and fireflies
         this.playerLightVFX.x = this.player.x;
         this.playerLightVFX.y = this.player.y;
-        this.fireflyLightVFX.x = this.firefly.x;
-        this.fireflyLightVFX.y = this.firefly.y;
-
+        
         //Firefly follow
-        const range = 330; 
-        const distance = Phaser.Math.Distance.Between(this.firefly.x, this.firefly.y, this.player.x, this.player.y);
-        if (this.isPlayerLighted && distance <= range) {
-            this.firefly.x += (this.player.x - 100 - this.firefly.x) * 0.1; //follow speed 
-            this.firefly.y += (this.player.y - 100 - this.firefly.y) * 0.1; //follow speed 
-       }
+        if ((this.player.body.velocity.x !== 0 || this.player.body.velocity.y !== 0)) {
+            this.firefliesGroup.getChildren().forEach(firefly => {
+                const range = 330;
+                const distance = Phaser.Math.Distance.Between(firefly.x, firefly.y, this.player.x, this.player.y);
+    
+                // Check if the player is lighted and within the range of the firefly
+                if (this.isPlayerLighted && distance <= range) {
+                    // Move the firefly and the light towards the player
+                    firefly.x += (this.player.x - 100 - firefly.x) * 0.1; // follow speed
+                    firefly.y += (this.player.y - 100 - firefly.y) * 0.1; // follow speed
+                    firefly.light.x = firefly.x;
+                    firefly.light.y = firefly.y;
+                }
+            });   
+        }
     }
 
     //Function that starts when Lucien collide with a light
     playerLightOn(player, light) {    
-        if (this.isPlayerLighted || !(light instanceof Light)) return;
-        this.playerLightVFX.setIntensity(3);
+        if (this.isPlayerLighted) return;
+        this.playerLightVFX.setIntensity(10);
         this.isPlayerLighted = true;
         console.log('Lucien is lighted! isPlayerLighted is: '+ this.isPlayerLighted);
 
