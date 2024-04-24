@@ -8,12 +8,8 @@ export class Game extends Scene
 {
     //Objects delcarations
     player = null;
-    jar1 = null;
-    jar2 = null;
-    jar3 = null;
-    jar4 = null;
     jar = null;
-    jars = [];
+    jarGroup = null;
     light = null;
     lightsGroup = null;
     firefly = null;
@@ -58,9 +54,9 @@ export class Game extends Scene
             })
             this.isAudioInPlay = true;
         }
-
         this.chargeSFX = this.sound.add('lightup');
         this.shutdownSFX = this.sound.add('shutdown');
+
 
         //Set the cursor
         this.cursors = this.input.keyboard.createCursorKeys(); 
@@ -69,27 +65,68 @@ export class Game extends Scene
         this.player = new Player({scene: this});
 
         //Crate the jar
-      
-        // this.jar1 = new Jar({scene: this});
-        // this.jar1.setPosition(1017.91, 2845.78);
-        // this.jar2 = new Jar({scene: this});
-        // this.jar2.setPosition(4737.53,2906.91);
-        // this.jar3 = new Jar({scene: this});
-        // this.jar3.setPosition(6658.96,2430.16);
-        // this.jar4 = new Jar({scene: this});
-        // this.jar4.setPosition(2644.95, 2197.10);
-
+         const jarPositions = [{
+                 x: 1683.78,
+                 y: 3509.97
+             },
+             {
+                 x: 3037.10,
+                 y: 3353.22
+             },
+             {
+                 x: 4941.83,
+                 y: 3421.19
+             },
+             {
+                 x: 6211.30,
+                 y: 3582.27
+             },
+           
+         ];
+        this.jarGroup = this.physics.add.group();
+        jarPositions.forEach(pos => {
+            this.jar = new Jar({scene: this});
+            this.jar.setPosition(pos.x, pos.y);
+            //this.lightVFX = this.lights.addLight(pos.x, pos.y, 1000).setIntensity(10);
+            this.jarGroup.add(this.jar);
+        })
+    
         //Create Light
+         const lightPositions = [{
+                 x: 353.94,
+                 y: 582.51
+             },
+             {
+                 x: 1815.64,
+                 y: 869.40
+             },
+            {
+                x: 4440.38,
+                y: 862.94
+            },
+            {
+                x: 6712.91,
+                y: 766.51
+            },
+            {
+                x: 7158.81,
+                y: 409.35
+            },
+            {
+                x: 7431.67,
+                y: 731.02
+            },
+         ];
+
         this.lightsGroup =  this.physics.add.group();
-        for (let i = 0; i < 5; i++) {
-            let x = Phaser.Math.Between(100, 6000); 
-            let y = Phaser.Math.Between(100, 400);
+        lightPositions.forEach(pos=> {
             this.light = new Light({scene: this});
-            this.light.setPosition(x, y);
-            this.lightVFX = this.lights.addLight(x, y, 200).setIntensity(0);
+            this.light.setPosition(pos.x, pos.y);
+            this.lightVFX = this.lights.addLight(pos.x, pos.y, 1000).setIntensity(10);
             this.light.body.setSize(50, 50);
             this.lightsGroup.add(this.light);
-        }
+
+        })
 
         //Create firefly
         this.firefliesGroup = this.physics.add.group();
@@ -101,10 +138,10 @@ export class Game extends Scene
             this.firefliesGroup.add(this.firefly);
         }
 
-         this.firefliesGroup.getChildren().forEach(firefly => {
-             firefly.light = this.lights.addLight(firefly.x, firefly.y, 100).setIntensity(10);
-         });
-        
+        this.firefliesGroup.getChildren().forEach(firefly => {
+            firefly.light = this.lights.addLight(firefly.x, firefly.y, 100).setIntensity(10);
+        });
+    
         //World dimension
         this.firefly.setCollideWorldBounds(true);
         this.physics.world.setBounds(0, 0, 1920 * 4, 1080 * 4);
@@ -125,33 +162,17 @@ export class Game extends Scene
         this.playerLightVFX = this.lights.addLight(this.player.x, this.player.y, 200).setIntensity(0);
         
         this.lightVFX.setIntensity(3);
-        
-        //Change to Game Over scene
-        // this.input.once('pointerdown', () => {
-
-        //     this.scene.start('GameOver');
-
-        // });
-    
-        //Per piazzare luci e barattoli
-        this.input.addPointer();
-
-        var jarDrag = this.add.image(2000, 2000, 'jar');
-
-        jarDrag.setInteractive();
-
-        this.input.setDraggable(jarDrag);
-
-        jarDrag.on('drag', function (p, x, y) {
-
-            jarDrag.x = x;
-            jarDrag.y = y;
-            console.log('La posizione di x è:' + x, '\nLa posizione di y è:' + y);
-
-        });
     }
     
     update() {
+
+         //Change to Game Over scene after win condition
+         // this.input.once('pointerdown', () => {
+
+         //     this.scene.start('GameOver');
+
+         // });
+
         //Player Movement
         this.player.move();
 
@@ -170,7 +191,7 @@ export class Game extends Scene
             this.firefliesGroup.getChildren().forEach(firefly => {
                 const range = 330;
                 const distance = Phaser.Math.Distance.Between(firefly.x, firefly.y, this.player.x, this.player.y);
-    
+
                 // Check if the player is lighted and within the range of the firefly
                 if (this.isPlayerLighted && distance <= range) {
                     // Move the firefly and the light towards the player
@@ -213,7 +234,6 @@ export class Game extends Scene
        this.shutdownSFX.play({
            loop: false,
            volume: 0.5,
-
        });
       
        console.log('Lucien is "not lighted" after: ' + (this.playerLightDuration / 1000) + ' seconds. He can light up again!');
