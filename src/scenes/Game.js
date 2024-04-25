@@ -96,7 +96,6 @@ export class Game extends Scene
             this.jar = new Jar({scene: this});
             this.jar.setPosition(pos.x, pos.y);
             this.jar.light = this.lights.addLight(pos.x, pos.y, 1000).setIntensity(0);
-            //this.lightVFX = this.lights.addLight(pos.x, pos.y, 1000).setIntensity(10);
             this.jarGroup.add(this.jar);
         })
     
