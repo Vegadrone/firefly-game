@@ -131,7 +131,7 @@ export class Game extends Scene
             this.light = new Light({scene: this});
             this.light.setPosition(pos.x, pos.y);
             this.lightVFX = this.lights.addLight(pos.x, pos.y, 1000).setIntensity(10);
-            this.light.body.setSize(50, 50);
+            this.light.body.setSize(100, 100);
             this.lightsGroup.add(this.light);
 
         })
