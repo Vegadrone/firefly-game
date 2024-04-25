@@ -30,7 +30,7 @@ export class Game extends Scene
     //Booleans
     isPlayerLighted = false;
     isAudioInPlay = false;
-    isJarLighted = false;
+    isJarLit= false;
 
     //Timer event
     playerLightResetTimer = null;
@@ -52,6 +52,7 @@ export class Game extends Scene
     init(){
        this.jarLighted = 0;
        this.isPlayerLighted = false;
+       this.isJarLit = false;
     }
 
     create ()
@@ -154,13 +155,13 @@ export class Game extends Scene
 
         this.firefliesGroup.getChildren().forEach(firefly => {
             firefly.light = this.lights.addLight(firefly.x, firefly.y, 100).setIntensity(10);
+            firefly.setCollideWorldBounds(true);
         });
 
         //Fireflies and Jar Logic
         this.physics.add.collider(this.firefliesGroup, this.jarGroup, this.fireflyCollideJar, null, this);
 
         //World dimension
-        this.firefly.setCollideWorldBounds(true);
         this.physics.world.setBounds(0, 0, 1920 * 4, 1080 * 4);
            
         //Follow Camera
@@ -266,35 +267,36 @@ export class Game extends Scene
    fireflyCollideJar(firefly, jar) {
        firefly.body.setVelocity(0, 0);
 
-       //Position the firefly in the jar
+       // Check if the jar is already full of fireflies
+       if (jar.firefliesInJar >= this.followFirefliesMaxCount) {
+           console.log("Jar is already full of fireflies.");
+           return; // Exit the function without further processing
+       }
+
+       // Position the firefly in the jar
        firefly.setPosition(jar.x, jar.y);
 
-       //Remove light on the fireflies
+       // Remove light on the firefly
        firefly.light.setIntensity(0);
 
-       //Remove firefly from fireflies group
+       // Remove firefly from fireflies group
        this.firefliesGroup.remove(firefly);
 
-       //SFX
-       this.fireFliesDropSFX.play({
-           loop: false,
-           volume: 0.5,
-       });
-
-       //Add counter in the jar
+       // Increment counter in the jar
        jar.firefliesInJar++;
 
-       //Light up the jar if enough fireflies are in the jar
-       if (jar.firefliesInJar >= 5) {
+       // Light up the jar if enough fireflies are in the jar
+       if (jar.firefliesInJar === this.followFirefliesMaxCount && !jar.isLit) {
            this.jarLightVFX.setIntensity(10);
            //SFX
            this.jarLightUpSFX.play({
                loop: false,
                volume: 0.5,
            });
-           this.jarLighted++;
-           console.log("You lighted: " + this.jarLighted + " Jar/s");
+           jar.isLit = true; // Flag indicating the jar is lit
+           this.jarLighted++; // Increment jarLighted only if the jar was not already lit
+           console.log("You lit: " + this.jarLighted + " jar/s");
        }
-        console.log("Number of fireflies in this jar:", jar.firefliesInJar);
+       console.log("Number of fireflies in this jar:", jar.firefliesInJar);
    }
 }
