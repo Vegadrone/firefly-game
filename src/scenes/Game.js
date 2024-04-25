@@ -19,6 +19,7 @@ export class Game extends Scene
     lightVFX = null;
     playerLightVFX = null;
     fireflyLightVFX = null;
+    jarLightVFX = null;
 
     //Counters
     firefliesInJar = 0;
@@ -29,7 +30,7 @@ export class Game extends Scene
     //Booleans
     isPlayerLighted = false;
     isAudioInPlay = false;
-    isJarLighted
+    isJarLighted = false;
 
     //Timer event
     playerLightResetTimer = null;
@@ -48,6 +49,11 @@ export class Game extends Scene
         super('Game');
     }
     
+    init(){
+       this.jarLighted = 0;
+       this.isPlayerLighted = false;
+    }
+
     create ()
     {
         //Audio play
@@ -94,6 +100,7 @@ export class Game extends Scene
         jarPositions.forEach(pos => {
             this.jar = new Jar({scene: this});
             this.jar.setPosition(pos.x, pos.y);
+            this.jarLightVFX = this.lights.addLight(pos.x, pos.y, 1000).setIntensity(0);
             //this.lightVFX = this.lights.addLight(pos.x, pos.y, 1000).setIntensity(10);
             this.jarGroup.add(this.jar);
         })
@@ -152,7 +159,6 @@ export class Game extends Scene
         //Fireflies and Jar Logic
         this.physics.add.collider(this.firefliesGroup, this.jarGroup, this.fireflyCollideJar, null, this);
 
-    
         //World dimension
         this.firefly.setCollideWorldBounds(true);
         this.physics.world.setBounds(0, 0, 1920 * 4, 1080 * 4);
@@ -172,17 +178,14 @@ export class Game extends Scene
         this.lights.setAmbientColor(0x808080);
         this.playerLightVFX = this.lights.addLight(this.player.x, this.player.y, 200).setIntensity(0);
         
-        this.lightVFX.setIntensity(3);
     }
     
     update() {
 
          //Change to Game Over scene after win condition
-         // this.input.once('pointerdown', () => {
-
-         //     this.scene.start('GameOver');
-
-         // });
+         if (this.jarLighted == this.winCondition) {
+             this.scene.start('GameOver');
+         }
 
         //Player Movement
         this.player.move();
@@ -256,30 +259,42 @@ export class Game extends Scene
       
        console.log('Lucien is "not lighted" after: ' + (this.playerLightDuration / 1000) + ' seconds. He can light up again!');
 
-       // Reset the timer for the next light activation
+       //Reset the timer for the next light activation
        this.playerLightResetTimer.reset({delay: this.playerLightDuration});
     }
 
-    fireflyCollideJar(firefly, jar) {
-        firefly.body.setVelocity(0, 0);
+   fireflyCollideJar(firefly, jar) {
+       firefly.body.setVelocity(0, 0);
 
-        // Posizionare la lucciola all'interno del barattolo
-        firefly.setPosition(jar.x, jar.y);
+       //Position the firefly in the jar
+       firefly.setPosition(jar.x, jar.y);
 
-        // Rimuovere la luce associata alla lucciola
-        firefly.light.setIntensity(0);
+       //Remove light on the fireflies
+       firefly.light.setIntensity(0);
 
-        // Rimuovere la lucciola dal gruppo di lucciole
-        this.firefliesGroup.remove(firefly);
-         //SFX
-         this.fireFliesDropSFX.play({
-             loop: false,
-             volume: 0.5,
-         });
+       //Remove firefly from fireflies group
+       this.firefliesGroup.remove(firefly);
 
-        // Aggiungere il contatore delle lucciole dentro al barattolo
-        this.firefliesInJar++;
+       //SFX
+       this.fireFliesDropSFX.play({
+           loop: false,
+           volume: 0.5,
+       });
 
-        // Aggiornare altre logiche di gioco se necessario
-        }
+       //Add counter in the jar
+       jar.firefliesInJar++;
+
+       //Light up the jar if enough fireflies are in the jar
+       if (jar.firefliesInJar >= 5) {
+           this.jarLightVFX.setIntensity(10);
+           //SFX
+           this.jarLightUpSFX.play({
+               loop: false,
+               volume: 0.5,
+           });
+           this.jarLighted++;
+           console.log("You lighted: " + this.jarLighted + " Jar/s");
+       }
+        console.log("Number of fireflies in this jar:", jar.firefliesInJar);
+   }
 }
