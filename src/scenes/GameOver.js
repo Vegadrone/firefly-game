@@ -6,6 +6,10 @@ export class GameOver extends Scene
     {
         super('GameOver');
     }
+    
+    init() {
+        this.cameras.main.fadeIn(1000, 0, 0, 0);
+    }
 
     create ()
     {

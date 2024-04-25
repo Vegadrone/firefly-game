@@ -2,13 +2,30 @@ import { Scene } from 'phaser';
 
 export class MainMenu extends Scene
 {
+    cafeMusic = null;
+    isAudioInPlay = false;
+
     constructor ()
     {
         super('MainMenu');
     }
 
+    init(){
+        this.cameras.main.fadeIn(1000, 0, 0, 0);
+    }
+
     create ()
     {
+        //Audio play
+        if (!this.isAudioInPlay) {
+            this.cafeMusic = this.sound.add('cafe');
+            this.cafeMusic.play({
+                loop: true,
+                volume: 0.1,
+            })
+            this.isAudioInPlay = true;
+        }
+         
         this.add.image(512, 384, 'mainmenu');
 
         this.add.image(512, 300, 'logo').setOrigin(0, 0);

@@ -29,7 +29,7 @@ export class Game extends Scene
 
     //Booleans
     isPlayerLighted = false;
-    isAudioInPlay = false;
+    //isAudioInPlay = false;
     isJarLit= false;
 
     //Timer event
@@ -37,7 +37,7 @@ export class Game extends Scene
     playerLightDuration = 10000;
 
     //Audio
-    cafeMusic = null;
+    //cafeMusic = null;
     chargeSFX = null;
     shutdownSFX = null;
     fireFliesPickupSFX = null;
@@ -50,22 +50,16 @@ export class Game extends Scene
     }
     
     init(){
-       this.jarLighted = 0;
-       this.isPlayerLighted = false;
-       this.isJarLit = false;
+
+        this.cameras.main.fadeIn(1000, 0, 0, 0);
+        this.scene.launch('Game');
+        this.jarLighted = 0;
+        this.isPlayerLighted = false;
+        this.isJarLit = false;
     }
 
     create ()
     {
-        //Audio play
-        if (!this.isAudioInPlay) {
-            this.cafeMusic = this.sound.add('cafe');
-            this.cafeMusic.play({
-                loop: true,
-                volume: 0.1,
-            })
-            this.isAudioInPlay = true;
-        }
         this.chargeSFX = this.sound.add('lightup');
         this.shutdownSFX = this.sound.add('shutdown');
         this.fireFliesPickupSFX = this.sound.add('pickup');
@@ -101,7 +95,7 @@ export class Game extends Scene
         jarPositions.forEach(pos => {
             this.jar = new Jar({scene: this});
             this.jar.setPosition(pos.x, pos.y);
-            this.jarLightVFX = this.lights.addLight(pos.x, pos.y, 1000).setIntensity(0);
+            this.jar.light = this.lights.addLight(pos.x, pos.y, 1000).setIntensity(0);
             //this.lightVFX = this.lights.addLight(pos.x, pos.y, 1000).setIntensity(10);
             this.jarGroup.add(this.jar);
         })
@@ -147,7 +141,7 @@ export class Game extends Scene
         this.firefliesGroup = this.physics.add.group();
         for (let i = 0; i < 20; i++) {
             let x = Phaser.Math.Between(100, 6000);
-            let y = Phaser.Math.Between(100, 4000);
+            let y = Phaser.Math.Between(100, 3000);
             this.firefly = new Firefly({scene: this})
             this.firefly.setPosition(x, y);
             this.firefliesGroup.add(this.firefly);
@@ -239,7 +233,7 @@ export class Game extends Scene
             volume:0.5,
         });
 
-         //Timer
+         //Timer for resetting player light
          this.playerLightResetTimer = this.time.addEvent({
             delay: this.playerLightDuration,
             callback: this.resetPlayerLight,
@@ -285,8 +279,9 @@ export class Game extends Scene
        // Increment counter in the jar
        jar.firefliesInJar++;
 
-       // Light up the jar if enough fireflies are in the jar
-       if (jar.firefliesInJar === this.followFirefliesMaxCount && !jar.isLit) {
+       // Light up the jar if enough fireflies are in the jar and it's the specific jar
+       if (jar.firefliesInJar === this.followFirefliesMaxCount && !jar.isLit && jar.firefliesInJar >= this.followFirefliesMaxCount) {
+           this.jarLightVFX = jar.light; // Set specific jar light
            this.jarLightVFX.setIntensity(10);
            //SFX
            this.jarLightUpSFX.play({
@@ -299,4 +294,5 @@ export class Game extends Scene
        }
        console.log("Number of fireflies in this jar:", jar.firefliesInJar);
    }
+
 }
