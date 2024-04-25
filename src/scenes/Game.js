@@ -14,6 +14,7 @@ export class Game extends Scene
     lightsGroup = null;
     firefly = null;
     firefliesGroup = null;
+    followingFireflies = [];
     cursors = null;
     lightVFX = null;
     playerLightVFX = null;
@@ -21,6 +22,7 @@ export class Game extends Scene
 
     //Counters
     firefliesInJar = 0;
+    followFirefliesMaxCount = 5;
     jarLighted = 0;
     winCondition = 4;
 
@@ -37,6 +39,9 @@ export class Game extends Scene
     cafeMusic = null;
     chargeSFX = null;
     shutdownSFX = null;
+    fireFliesPickupSFX = null;
+    fireFliesDropSFX = null;
+    jarLightUpSFX = null;
    
     constructor ()
     {
@@ -56,7 +61,9 @@ export class Game extends Scene
         }
         this.chargeSFX = this.sound.add('lightup');
         this.shutdownSFX = this.sound.add('shutdown');
-
+        this.fireFliesPickupSFX = this.sound.add('pickup');
+        this.fireFliesDropSFX = this.sound.add('drop');
+        this.jarLightUpSFX = this.sound.add('jarlightup');
 
         //Set the cursor
         this.cursors = this.input.keyboard.createCursorKeys(); 
@@ -141,6 +148,10 @@ export class Game extends Scene
         this.firefliesGroup.getChildren().forEach(firefly => {
             firefly.light = this.lights.addLight(firefly.x, firefly.y, 100).setIntensity(10);
         });
+
+        //Fireflies and Jar Logic
+        this.physics.add.collider(this.firefliesGroup, this.jarGroup, this.fireflyCollideJar, null, this);
+
     
         //World dimension
         this.firefly.setCollideWorldBounds(true);
@@ -179,7 +190,9 @@ export class Game extends Scene
         //Check for collision, use this condition to stop collition chek accumulateing
         if (!this.isPlayerLighted && (this.player.body.velocity.x !== 0 || this.player.body.velocity.y !== 0)) {
             this.physics.add.overlap(this.player, this.lightsGroup, this.playerLightOn, null, this);
-            console.log('Lucien is not lighted, collision is possible! isPlayerLighted is:' + this.isPlayerLighted);
+            this.followFirefliesCount = 0;
+            console.log('Lucien is not lighted, collision is possible! isPlayerLighted is:' + this.isPlayerLighted + 
+                        '\n Fireflies stop follows, the counter is: ' + this.followFirefliesCount);
         }
        
         //Move the light behind Lucien and fireflies
@@ -194,6 +207,11 @@ export class Game extends Scene
 
                 // Check if the player is lighted and within the range of the firefly
                 if (this.isPlayerLighted && distance <= range) {
+                    //SFX
+                    this.fireFliesPickupSFX.play({
+                        loop: false,
+                        volume: 0.5,
+                    });
                     // Move the firefly and the light towards the player
                     firefly.x += (this.player.x - 100 - firefly.x) * 0.1; // follow speed
                     firefly.y += (this.player.y - 100 - firefly.y) * 0.1; // follow speed
@@ -241,4 +259,27 @@ export class Game extends Scene
        // Reset the timer for the next light activation
        this.playerLightResetTimer.reset({delay: this.playerLightDuration});
     }
+
+    fireflyCollideJar(firefly, jar) {
+        firefly.body.setVelocity(0, 0);
+
+        // Posizionare la lucciola all'interno del barattolo
+        firefly.setPosition(jar.x, jar.y);
+
+        // Rimuovere la luce associata alla lucciola
+        firefly.light.setIntensity(0);
+
+        // Rimuovere la lucciola dal gruppo di lucciole
+        this.firefliesGroup.remove(firefly);
+         //SFX
+         this.fireFliesDropSFX.play({
+             loop: false,
+             volume: 0.5,
+         });
+
+        // Aggiungere il contatore delle lucciole dentro al barattolo
+        this.firefliesInJar++;
+
+        // Aggiornare altre logiche di gioco se necessario
+        }
 }
