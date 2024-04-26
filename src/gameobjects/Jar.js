@@ -1,6 +1,7 @@
 import { GameObjects, Physics } from "phaser";
 
 export class Jar extends Physics.Arcade.Sprite {
+
     constructor({scene}) {
         super(scene, scene.x, scene.y, 'jar').setDepth(60);
         this.scene = scene;
@@ -8,4 +9,6 @@ export class Jar extends Physics.Arcade.Sprite {
         this.scene.physics.add.existing(this);
         this.firefliesInJar = 0;
     }
+
+
 }

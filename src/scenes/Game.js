@@ -192,14 +192,7 @@ export class Game extends Scene
                     this.scene.get("Hud").updateTimeout(this.gameOverTimeOut);
                 }
             }
-        });
-        
-        //  this.input.once('pointerdown', () => {
-
-        //     this.scene.start('GameOver');
-
-        //  });
-        
+        });        
     }
     
     update() {
@@ -208,7 +201,9 @@ export class Game extends Scene
          if (this.jarLighted == this.winCondition) {
               this.time.delayedCall(1000, () => {
                 this.scene.stop("Hud");
-                this.scene.start('GameOver');
+                this.scene.start('GameOver', {
+                    jarLit: this.jarLighted
+                });
               });
          }
 
