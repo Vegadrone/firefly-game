@@ -26,7 +26,7 @@ export class Game extends Scene
     followFirefliesMaxCount = 5;
     jarLighted = 0;
     winCondition = 4;
-    gameOverTimeOut = 120;
+    gameOverTimeOut = 60;
 
     //Booleans
     isPlayerLighted = false;
@@ -52,7 +52,7 @@ export class Game extends Scene
 
         this.cameras.main.fadeIn(1000, 0, 0, 0);
         this.scene.launch('Game');
-        this.gameOverTimeOut = 120;
+        this.gameOverTimeOut = 60;
         this.jarLighted = 0;
         this.isPlayerLighted = false;
         this.isJarLit = false;
@@ -174,6 +174,25 @@ export class Game extends Scene
         this.lights.setAmbientColor(0x808080);
         this.playerLightVFX = this.lights.addLight(this.player.x, this.player.y, 200).setIntensity(0);
 
+        //Game Over Timeout
+        this.time.addEvent({
+            delay: 1000,
+            loop: true,
+            callback: () => {
+                if (this.gameOverTimeOut === 0) {
+                    // You need remove the event listener to avoid duplicate events.
+                    this.game.events.removeListener("start-game");
+                    // It is necessary to stop the scenes launched in parallel.
+                    this.scene.stop("Hud");
+                    this.scene.start("GameOver", {
+                        jarLit: this.jarLighted,
+                    });
+                } else {
+                    this.gameOverTimeOut--;
+                    this.scene.get("Hud").updateTimeout(this.gameOverTimeOut);
+                }
+            }
+        });
         
         //  this.input.once('pointerdown', () => {
 
@@ -188,7 +207,8 @@ export class Game extends Scene
          //Change to Game Over scene after win condition
          if (this.jarLighted == this.winCondition) {
               this.time.delayedCall(1000, () => {
-                  this.scene.start('GameOver');
+                this.scene.stop("Hud");
+                this.scene.start('GameOver');
               });
          }
 
@@ -300,7 +320,7 @@ export class Game extends Scene
            });
            jar.isLit = true; // Flag indicating the jar is lit
            this.jarLighted++; // Increment jarLighted only if the jar was not already lit
-           //this.get.scene.updateLitJarsCopunter(this.jarLighted);
+           this.scene.get("Hud").updateLitJarCounter(this.jarLighted);
            console.log("You lit: " + this.jarLighted + " jar/s");
        }
        console.log("Number of fireflies in this jar:", jar.firefliesInJar);
