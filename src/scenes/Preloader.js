@@ -32,14 +32,13 @@ export class Preloader extends Scene
         //  Load the assets for the game 
         this.load.setPath('assets');
 
-        this.load.image('logo', 'logo.png');
+        //Scenes Images
+        this.load.image('titlescreen', 'Title_Screen.png');
+        this.load.image('gameover', 'Gameover_Screen.png');
 
+        //Assets
         this.load.image('player', 'lucien.png');
-        //this.load.image('light', 'light.png');
         this.load.image('firefly', 'firefly.png');
-        this.load.image('tavolino', 'tavolino.png');
-        this.load.image('sedia', 'sedia.png');
-        this.load.image('lampione', 'lampione.png');
         this.load.image('jar', 'jar.png');
 
         //Audio
@@ -47,8 +46,12 @@ export class Preloader extends Scene
         this.load.audio('lightup', '/audio/lucien_charge.mp3');
         this.load.audio('shutdown', '/audio/spento.mp3');
         this.load.audio('pickup', '/audio/pickup.mp3');
-         this.load.audio('drop', '/audio/drop.mp3');
+        this.load.audio('drop', '/audio/drop.mp3');
         this.load.audio('jarlightup', '/audio/jarlightup.mp3');
+
+        //Font
+        //this.load.bitmapFont('parisienneTtf', '/fonts/Parisienne-Regular.ttf');
+        this.load.image('parisiennePng', '/fonts/Parisienne-Regular.png');
        
     }
 

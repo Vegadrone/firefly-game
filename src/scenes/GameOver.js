@@ -13,15 +13,28 @@ export class GameOver extends Scene
 
     create ()
     {
-        this.cameras.main.setBackgroundColor(0xff0000);
+        
 
-        this.add.image(512, 384, 'background').setAlpha(0.5);
+        this.add.image(960, 540, 'gameover').setOrigin(0.5, 0.5);
 
-        this.add.text(512, 384, 'Game Over', {
-            fontFamily: 'Arial Black', fontSize: 64, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
-            align: 'center'
-        }).setOrigin(0.5);
+      const restartMsg = this.add.text(940, 980, 'Click to play again', {
+          fontFamily: 'Parisienne',
+          fontSize: 90,
+          color: '#ffffff',
+          stroke: '#000000',
+          strokeThickness: 10,
+          align: 'center'
+      }).setOrigin(0.5, 0.5);
+
+      // Tween to blink the text
+      this.tweens.add({
+          targets: restartMsg,
+          alpha: 0,
+          duration: 1000,
+          ease: (value) => Math.abs(Math.round(value)),
+          yoyo: true,
+          repeat: -1
+      });
 
         this.input.once('pointerdown', () => {
 

@@ -26,10 +26,10 @@ export class Game extends Scene
     followFirefliesMaxCount = 5;
     jarLighted = 0;
     winCondition = 4;
+    gameOverTimeOut = 120;
 
     //Booleans
     isPlayerLighted = false;
-    //isAudioInPlay = false;
     isJarLit= false;
 
     //Timer event
@@ -37,7 +37,6 @@ export class Game extends Scene
     playerLightDuration = 10000;
 
     //Audio
-    //cafeMusic = null;
     chargeSFX = null;
     shutdownSFX = null;
     fireFliesPickupSFX = null;
@@ -53,6 +52,7 @@ export class Game extends Scene
 
         this.cameras.main.fadeIn(1000, 0, 0, 0);
         this.scene.launch('Game');
+        this.gameOverTimeOut = 120;
         this.jarLighted = 0;
         this.isPlayerLighted = false;
         this.isJarLit = false;
@@ -65,6 +65,8 @@ export class Game extends Scene
         this.fireFliesPickupSFX = this.sound.add('pickup');
         this.fireFliesDropSFX = this.sound.add('drop');
         this.jarLightUpSFX = this.sound.add('jarlightup');
+
+        this.scene.launch('Hud');
 
         //Set the cursor
         this.cursors = this.input.keyboard.createCursorKeys(); 
@@ -147,7 +149,7 @@ export class Game extends Scene
         }
 
         this.firefliesGroup.getChildren().forEach(firefly => {
-            firefly.light = this.lights.addLight(firefly.x, firefly.y, 100).setIntensity(10);
+            firefly.light = this.lights.addLight(firefly.x, firefly.y, 100).setIntensity(5);
             firefly.setCollideWorldBounds(true);
         });
 
@@ -171,6 +173,13 @@ export class Game extends Scene
         this.lights.enable();
         this.lights.setAmbientColor(0x808080);
         this.playerLightVFX = this.lights.addLight(this.player.x, this.player.y, 200).setIntensity(0);
+
+        
+        //  this.input.once('pointerdown', () => {
+
+        //     this.scene.start('GameOver');
+
+        //  });
         
     }
     
@@ -178,7 +187,9 @@ export class Game extends Scene
 
          //Change to Game Over scene after win condition
          if (this.jarLighted == this.winCondition) {
-             this.scene.start('GameOver');
+              this.time.delayedCall(1000, () => {
+                  this.scene.start('GameOver');
+              });
          }
 
         //Player Movement
@@ -222,7 +233,7 @@ export class Game extends Scene
     //Function that starts when Lucien collide with a light
     playerLightOn(player, light) {    
         if (this.isPlayerLighted) return;
-        this.playerLightVFX.setIntensity(10);
+        this.playerLightVFX.setIntensity(5);
         this.isPlayerLighted = true;
         console.log('Lucien is lighted! isPlayerLighted is: '+ this.isPlayerLighted);
 
@@ -289,6 +300,7 @@ export class Game extends Scene
            });
            jar.isLit = true; // Flag indicating the jar is lit
            this.jarLighted++; // Increment jarLighted only if the jar was not already lit
+           //this.get.scene.updateLitJarsCopunter(this.jarLighted);
            console.log("You lit: " + this.jarLighted + " jar/s");
        }
        console.log("Number of fireflies in this jar:", jar.firefliesInJar);
